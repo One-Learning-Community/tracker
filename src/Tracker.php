@@ -226,22 +226,30 @@ class Tracker
 
         if (!$sessionData) {
             $sessionData = [
-                'user_id' => $this->getUserId(),
                 'device_id' => $this->getDeviceId(),
-                'client_ip' => $this->request->getClientIp(),
                 'geoip_id' => $this->getGeoIpId(),
                 'agent_id' => $this->getAgentId(),
                 'referer_id' => $this->getRefererId(),
                 'cookie_id' => $this->getCookieId(),
                 'language_id' => $this->getLanguageId(),
                 'is_robot' => $this->isRobot(),
+            ];
+        }
+
+        $sessionData = array_merge(
+            $sessionData,
+            [
+                'client_ip' => $this->request->getClientIp(),
+                
+                // Apply user id (in the event that it has changed)
+                'user_id' => $this->getUserId(),
 
                 // The key user_agent is not present in the sessions table, but
                 // it's internally used to check if the user agent changed
                 // during a session.
                 'user_agent' => $this->dataRepositoryManager->getCurrentUserAgent(),
-            ];
-        }
+            ]
+        );
 
         return $this->sessionData = $this->dataRepositoryManager->checkSessionData($sessionData, $this->sessionData);
     }
