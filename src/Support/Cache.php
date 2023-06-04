@@ -4,33 +4,32 @@ namespace PragmaRX\Tracker\Support;
 
 use Cache as IlluminateCache;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Foundation\Application;
 use PragmaRX\Support\Config as Config;
 
 class Cache
 {
-    private $app;
-
-    private $config;
+    private $enabled = false;
 
     private $cache;
 
     private $ttl;
 
-    public function __construct(Config $config, Application $app)
+    public function __construct(
+        Config $config,
+        string $cacheStore = '',
+        int $ttl = 0,
+    )
     {
-        $this->config = $config;
+        $this->enabled = $config->get('cache_enabled');
 
-        $this->app = $app;
+        $this->cache = IlluminateCache::store($cacheStore ?: $config->get('cache_store'));
 
-        $this->cache = IlluminateCache::store($config->get('cache_store'));
-
-        $this->ttl = $config->get('cache_ttl', 600);
+        $this->ttl = $ttl ?: $config->get('cache_ttl', 600);
     }
 
     public function cachePut($cacheKey, $model)
     {
-        if ($this->config->get('cache_enabled')) {
+        if ($this->enabled) {
             $this->cache->put($cacheKey, $model, $this->ttl);
         }
     }
@@ -78,7 +77,7 @@ class Cache
      */
     public function findCachedWithKey($key)
     {
-        if ($this->config->get('cache_enabled')) {
+        if ($this->enabled) {
             return $this->cache->get($key);
         }
     }
@@ -95,7 +94,7 @@ class Cache
      */
     public function findCached($attributes, $keys, $identifier = null)
     {
-        if (!$this->config->get('cache_enabled')) {
+        if (!$this->enabled) {
             return;
         }
 

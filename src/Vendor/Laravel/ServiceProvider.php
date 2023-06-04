@@ -2,10 +2,7 @@
 
 namespace PragmaRX\Tracker\Vendor\Laravel;
 
-use Illuminate\Console\Command;
-use Illuminate\Session\SessionManager;
 use PragmaRX\Support\GeoIp\GeoIp;
-use PragmaRX\Support\PhpSession;
 use PragmaRX\Support\ServiceProvider as PragmaRXServiceProvider;
 use PragmaRX\Tracker\Data\Repositories\Agent;
 use PragmaRX\Tracker\Data\Repositories\Connection;
@@ -336,7 +333,15 @@ class ServiceProvider extends PragmaRXServiceProvider
     public function registerCache()
     {
         $this->app->singleton('tracker.cache', function ($app) {
-            return new Cache($app['tracker.config'], $app);
+            return new Cache($app['tracker.config']);
+        });
+
+        $this->app->singleton('tracker.cache.local', function ($app) {
+            return new Cache(
+                $app['tracker.config'],
+                'local',
+                86400 // Full day should be plenty?
+            );
         });
     }
 

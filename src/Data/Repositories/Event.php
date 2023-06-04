@@ -204,4 +204,9 @@ class Event extends Repository
 
         return $event;
     }
+
+    public function getCacheProvider()
+    {
+        return app('tracker.cache.local');
+    }
 }
