@@ -13,4 +13,6 @@ class Device extends Base
         'platform_version',
         'is_mobile',
     ];
+
+    public $modelCacheEnabled = false;
 }

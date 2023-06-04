@@ -3,9 +3,9 @@
 namespace PragmaRX\Tracker\Data\Repositories;
 
 use Carbon\Carbon;
+use Illuminate\Session\Store as IlluminateSession;
 use PragmaRX\Support\Config;
 use Ramsey\Uuid\Uuid as UUID;
-use Illuminate\Session\Store as IlluminateSession;
 
 class Session extends Repository
 {
@@ -28,7 +28,7 @@ class Session extends Repository
 
     public function findByUuid($uuid)
     {
-        list($model, $cacheKey) = $this->cache->findCached($uuid, 'uuid', 'PragmaRX\Tracker\Vendor\Laravel\Models\Session');
+        list($model, $cacheKey) = $this->cache->findCached(['uuid' => $uuid], 'uuid', 'PragmaRX\Tracker\Vendor\Laravel\Models\Session');
 
         if (!$model) {
             $model = $this->newQuery()->where('uuid', $uuid)->with($this->relations)->first();
@@ -44,6 +44,15 @@ class Session extends Repository
         $this->setSessionData($sessionInfo);
 
         return $this->sessionGetId($sessionInfo);
+    }
+
+    public function getValidStoredSession()
+    {
+        if ($this->sessionIsKnown()) {
+            return $this->getSessionData();
+        }
+
+        return null;
     }
 
     public function setSessionData($sessinInfo)
@@ -93,12 +102,12 @@ class Session extends Repository
 
     private function sessionIsKnownOrCreateSession()
     {
-        if (!$known = $this->sessionIsKnown()) {
+        if (!$known = $this->findKnownSession()) {
             $this->sessionSetId($this->findOrCreate($this->sessionInfo, ['uuid']));
         } else {
-            $session = $this->find($this->getSessionData('id'));
+            $session = $known;
 
-            if (!$session->updated_at || $session->updated_at->gte(now()->subMinutes(2))) {
+            if (!$session->updated_at || $session->updated_at->lte(now()->subMinutes(2))) {
                 $session->updated_at = Carbon::now();
                 $session->save();
             }
@@ -119,11 +128,20 @@ class Session extends Repository
             return false;
         }
 
-        if (!$this->findByUuid($this->getSessionData('uuid'))) {
+        if (!$this->getSessionData('id')) {
             return false;
         }
 
         return true;
+    }
+
+    private function findKnownSession()
+    {
+        if ($this->sessionIsKnown()) {
+            return $this->findByUuid($this->getSessionData('uuid'));
+        }
+
+        return null;
     }
 
     private function ensureSessionDataIsComplete()
@@ -206,8 +224,8 @@ class Session extends Repository
         $data = $this->session->get($this->getSessionKey());
 
         return $variable
-                ? (isset($data[$variable]) ? $data[$variable] : null)
-                : $data;
+            ? (isset($data[$variable]) ? $data[$variable] : null)
+            : $data;
     }
 
     private function putSessionData($data)
@@ -223,9 +241,9 @@ class Session extends Repository
     private function getSessions()
     {
         return $this
-                ->newQuery()
-                ->with($this->relations)
-                ->orderBy('updated_at', 'desc');
+            ->newQuery()
+            ->with($this->relations)
+            ->orderBy('updated_at', 'desc');
     }
 
     public function all()

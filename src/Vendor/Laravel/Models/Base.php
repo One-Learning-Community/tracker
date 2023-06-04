@@ -36,8 +36,19 @@ class Base extends Eloquent
         parent::save($options);
 
         if ($this->modelCacheEnabled) {
-            app('tracker.cache')->makeKeyAndPut($this, $this->getKeyName());
+            // Cache without relations
+            $relations = $this->getRelations();
+            $this->unsetRelations();
+
+            app('tracker.cache')->makeKeyAndPut($this, $this->getBaseCacheKey());
+
+            $this->setRelations($relations);
         }
+    }
+
+    protected function getBaseCacheKey(): string
+    {
+        return $this->getKeyName();
     }
 
     public function setConfig($config)
@@ -50,7 +61,7 @@ class Base extends Eloquent
         $alias = $alias ? "$alias." : '';
 
         return $query
-            ->where($alias.'updated_at', '>=', $minutes->getStart() ? $minutes->getStart() : 1)
-            ->where($alias.'updated_at', '<=', $minutes->getEnd() ? $minutes->getEnd() : 1);
+            ->where($alias . 'updated_at', '>=', $minutes->getStart() ? $minutes->getStart() : 1)
+            ->where($alias . 'updated_at', '<=', $minutes->getEnd() ? $minutes->getEnd() : 1);
     }
 }

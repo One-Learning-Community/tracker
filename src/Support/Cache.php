@@ -17,7 +17,7 @@ class Cache
     public function __construct(
         Config $config,
         string $cacheStore = '',
-        int $ttl = 0,
+        int    $ttl = 0,
     )
     {
         $this->enabled = $config->get('cache_enabled');
@@ -41,7 +41,7 @@ class Cache
         }
 
         if (is_string($attributes) || is_numeric($attributes)) {
-            return (array) $attributes;
+            return (array)$attributes;
         }
 
         if ($attributes instanceof Model) {
@@ -62,7 +62,7 @@ class Cache
         }
 
         if (!is_array($keys)) {
-            $keys = (array) $keys;
+            $keys = (array)$keys;
 
             return $keys;
         }
@@ -120,6 +120,6 @@ class Cache
             }
         }
 
-        return sha1($cacheKey);
+        return $identifier . '::' . hash('sha1', $cacheKey);
     }
 }

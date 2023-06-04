@@ -12,4 +12,6 @@ class Agent extends Base
         'browser_version',
         'name_hash',
     ];
+
+    public $modelCacheEnabled = false;
 }

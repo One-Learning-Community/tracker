@@ -103,4 +103,9 @@ class Session extends Base
 
         return $query;
     }
+
+    protected function getBaseCacheKey(): string
+    {
+        return 'uuid';
+    }
 }
