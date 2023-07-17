@@ -311,7 +311,7 @@ class RepositoryManager implements RepositoryManagerInterface
             if (!isset($url['host'])) {
                 return;
             }
-            
+
             if (in_array($url['host'], config('tracker.do_not_track_referer_domains', []))) {
                 return;
             }
@@ -326,7 +326,12 @@ class RepositoryManager implements RepositoryManagerInterface
 
             $domain_id = $this->getDomainId($domain);
 
-            return $this->refererRepository->store($referer, $url['host'], $domain_id);
+            try {
+                return $this->refererRepository->store($referer, $url['host'], $domain_id);
+            } catch(\Throwable $t) {
+                report($t);
+                return;
+            }
         }
     }
 
