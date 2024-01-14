@@ -175,55 +175,57 @@ class ServiceProvider extends PragmaRXServiceProvider
                 $uaParser = null;
             }
 
-            $sessionModel = $this->instantiateModel('session_model');
+            $trackerConfig = $app['tracker.config'];
 
-            $logModel = $this->instantiateModel('log_model');
+            $sessionModel = $this->instantiateModel('session_model', $trackerConfig);
 
-            $agentModel = $this->instantiateModel('agent_model');
+            $logModel = $this->instantiateModel('log_model', $trackerConfig);
 
-            $deviceModel = $this->instantiateModel('device_model');
+            $agentModel = $this->instantiateModel('agent_model', $trackerConfig);
 
-            $cookieModel = $this->instantiateModel('cookie_model');
+            $deviceModel = $this->instantiateModel('device_model', $trackerConfig);
 
-            $pathModel = $this->instantiateModel('path_model');
+            $cookieModel = $this->instantiateModel('cookie_model', $trackerConfig);
 
-            $queryModel = $this->instantiateModel('query_model');
+            $pathModel = $this->instantiateModel('path_model', $trackerConfig);
 
-            $queryArgumentModel = $this->instantiateModel('query_argument_model');
+            $queryModel = $this->instantiateModel('query_model', $trackerConfig);
 
-            $domainModel = $this->instantiateModel('domain_model');
+            $queryArgumentModel = $this->instantiateModel('query_argument_model', $trackerConfig);
 
-            $refererModel = $this->instantiateModel('referer_model');
+            $domainModel = $this->instantiateModel('domain_model', $trackerConfig);
 
-            $refererSearchTermModel = $this->instantiateModel('referer_search_term_model');
+            $refererModel = $this->instantiateModel('referer_model', $trackerConfig);
 
-            $routeModel = $this->instantiateModel('route_model');
+            $refererSearchTermModel = $this->instantiateModel('referer_search_term_model', $trackerConfig);
 
-            $routePathModel = $this->instantiateModel('route_path_model');
+            $routeModel = $this->instantiateModel('route_model', $trackerConfig);
 
-            $routePathParameterModel = $this->instantiateModel('route_path_parameter_model');
+            $routePathModel = $this->instantiateModel('route_path_model', $trackerConfig);
 
-            $errorModel = $this->instantiateModel('error_model');
+            $routePathParameterModel = $this->instantiateModel('route_path_parameter_model', $trackerConfig);
 
-            $geoipModel = $this->instantiateModel('geoip_model');
+            $errorModel = $this->instantiateModel('error_model', $trackerConfig);
 
-            $sqlQueryModel = $this->instantiateModel('sql_query_model');
+            $geoipModel = $this->instantiateModel('geoip_model', $trackerConfig);
 
-            $sqlQueryBindingModel = $this->instantiateModel('sql_query_binding_model');
+            $sqlQueryModel = $this->instantiateModel('sql_query_model', $trackerConfig);
 
-            $sqlQueryBindingParameterModel = $this->instantiateModel('sql_query_binding_parameter_model');
+            $sqlQueryBindingModel = $this->instantiateModel('sql_query_binding_model', $trackerConfig);
 
-            $sqlQueryLogModel = $this->instantiateModel('sql_query_log_model');
+            $sqlQueryBindingParameterModel = $this->instantiateModel('sql_query_binding_parameter_model', $trackerConfig);
 
-            $connectionModel = $this->instantiateModel('connection_model');
+            $sqlQueryLogModel = $this->instantiateModel('sql_query_log_model', $trackerConfig);
 
-            $eventModel = $this->instantiateModel('event_model');
+            $connectionModel = $this->instantiateModel('connection_model', $trackerConfig);
 
-            $eventLogModel = $this->instantiateModel('event_log_model');
+            $eventModel = $this->instantiateModel('event_model', $trackerConfig);
 
-            $systemClassModel = $this->instantiateModel('system_class_model');
+            $eventLogModel = $this->instantiateModel('event_log_model', $trackerConfig);
 
-            $languageModel = $this->instantiateModel('language_model');
+            $systemClassModel = $this->instantiateModel('system_class_model', $trackerConfig);
+
+            $languageModel = $this->instantiateModel('language_model', $trackerConfig);
 
             $logRepository = new Log($logModel);
 
@@ -388,7 +390,7 @@ class ServiceProvider extends PragmaRXServiceProvider
     /**
      * @param string $modelName
      */
-    protected function instantiateModel($modelName)
+    protected function instantiateModel($modelName, $config)
     {
         $model = $this->getConfig($modelName);
 
@@ -402,7 +404,7 @@ class ServiceProvider extends PragmaRXServiceProvider
 
         $model = new $model();
 
-        $model->setConfig($this->app['tracker.config']);
+        $model->setConfig($config);
 
         if ($connection = $this->getConfig('connection')) {
             $model->setConnection($connection);
