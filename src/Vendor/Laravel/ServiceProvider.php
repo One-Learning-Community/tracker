@@ -462,30 +462,32 @@ class ServiceProvider extends PragmaRXServiceProvider
             return new EventStorage();
         });
 
-        $this->app['events']->listen('*', function ($object = null) use ($me) {
-            if ($me->app['tracker.events']->isOff() || !$me->isFullyBooted()) {
-                return;
-            }
+        if ($this->getConfig('log_events')) {
+            $this->app['events']->listen('*', function ($object = null) use ($me) {
+                if ($me->app['tracker.events']->isOff() || !$me->isFullyBooted()) {
+                    return;
+                }
 
-            // To avoid infinite recursion, event tracking while logging events
-            // must be turned off
-            $me->app['tracker.events']->turnOff();
+                // To avoid infinite recursion, event tracking while logging events
+                // must be turned off
+                $me->app['tracker.events']->turnOff();
 
-            // Log events even before application is ready
-            // $me->app['tracker.events']->logEvent(
-            //    $me->app['events']->firing(),
-            //    $object
-            // );
-            // TODO: we have to investigate a way of doing this
+                // Log events even before application is ready
+                // $me->app['tracker.events']->logEvent(
+                //    $me->app['events']->firing(),
+                //    $object
+                // );
+                // TODO: we have to investigate a way of doing this
 
-            // Can only send events to database after application is ready
-            if (isset($me->app['tracker.loaded'])) {
-                $me->getTracker()->logEvents();
-            }
+                // Can only send events to database after application is ready
+                if (isset($me->app['tracker.loaded'])) {
+                    $me->getTracker()->logEvents();
+                }
 
-            // Turn the event tracking to on again
-            $me->app['tracker.events']->turnOn();
-        });
+                // Turn the event tracking to on again
+                $me->app['tracker.events']->turnOn();
+            });
+        }
     }
 
     protected function loadRoutes()
