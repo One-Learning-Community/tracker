@@ -559,7 +559,7 @@ class ServiceProvider extends PragmaRXServiceProvider
      */
     public function getPackageDir()
     {
-        return __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..';
+        return __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..';
     }
 
     /**
@@ -575,12 +575,16 @@ class ServiceProvider extends PragmaRXServiceProvider
      */
     protected function registerGlobalViewComposers()
     {
+        if (!$this->getConfig('stats_panel_enabled')) {
+            return false;
+        }
+
         $me = $this;
 
         $this->app->make('view')->composer('pragmarx/tracker::*', function ($view) use ($me) {
             $view->with('stats_layout', $me->getConfig('stats_layout'));
 
-            $template_path = url('/').$me->getConfig('stats_template_path');
+            $template_path = url('/') . $me->getConfig('stats_template_path');
 
             $view->with('stats_template_path', $template_path);
         });
@@ -638,7 +642,7 @@ class ServiceProvider extends PragmaRXServiceProvider
 
     public function getRootDirectory()
     {
-        return __DIR__.'/../..';
+        return __DIR__ . '/../..';
     }
 
     protected function getAppUrl()
@@ -648,7 +652,7 @@ class ServiceProvider extends PragmaRXServiceProvider
 
     public function loadTranslations()
     {
-        $this->loadTranslationsFrom(__DIR__.'/../../lang', 'tracker');
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', 'tracker');
     }
 
     /**
