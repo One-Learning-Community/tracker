@@ -39,7 +39,8 @@ class Event extends Repository
         SystemClass $systemClassRepository,
         Log $logRepository,
         Config $config
-    ) {
+    )
+    {
         parent::__construct($model);
 
         $this->eventStorage = $eventStorage;
@@ -83,7 +84,7 @@ class Event extends Repository
             &&
 
             !$this->config->get('log_only_events')
-                || in_array($event['event'], $this->config->get('log_only_events'));
+            || in_array($event['event'], $this->config->get('log_only_events'));
     }
 
     public function logEvent($event)
@@ -103,11 +104,16 @@ class Event extends Repository
 
             $this->eventLogRepository->create(
                 [
-                    'log_id'   => $logId,
+                    'log_id' => $logId,
                     'event_id' => $eventId,
                     'class_id' => $classId,
                     'class_ref_id' => $classRefId,
                     'extra_data' => $event['extra_data'] ?? null,
+                    ...(
+                    ($createdAt = $event['created_at'] ?? null)
+                        ? ['created_at' => $createdAt]
+                        : []
+                    )
                 ]
             );
         }
@@ -197,7 +203,7 @@ class Event extends Repository
     {
         if (is_string($event)) {
             $event = [
-                'event'  => $event,
+                'event' => $event,
                 'object' => null,
             ];
         }

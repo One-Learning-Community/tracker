@@ -5,7 +5,7 @@ namespace PragmaRX\Tracker\Vendor\Laravel\Models;
 class EventLog extends Base
 {
     public $modelCacheEnabled = false;
-    
+
     protected $table = 'tracker_events_log';
 
     protected $fillable = [
@@ -14,12 +14,13 @@ class EventLog extends Base
         'class_ref_id',
         'log_id',
         'extra_data',
+        'created_at',
     ];
 
-    protected $casts = [ 'extra_data' => 'array' ];
-    
+    protected $casts = ['extra_data' => 'array'];
+
     protected $_systemModel = false;
-    
+
     public function event()
     {
         return $this->belongsTo($this->getConfig()->get('event_model'));
